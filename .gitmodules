@@ -1,6 +1,7 @@
 [submodule "components/LovyanGFX"]
 	path = components/LovyanGFX
-	url = https://github.com/lovyan03/LovyanGFX.git
+	url = https://github.com/jullienthur/LovyanGFX.git
+	branch = artemis-firmware-patches
 [submodule "components/lvgl"]
 	path = components/lvgl
 	url = https://github.com/lvgl/lvgl.git
@@ -15,4 +16,5 @@
 	url = git@github.com:CircuitMess/Perse-Common.git
 [submodule "components/JPEGDEC"]
 	path = components/JPEGDEC
-	url = https://github.com/bitbank2/JPEGDEC.git
+	url = https://github.com/jullienthur/JPEGDEC.git
+	branch = artemis-firmware-patches
