@@ -19,11 +19,11 @@ Sleep::Sleep(){
 	wakeSem = xSemaphoreCreateBinary();
 }
 
-void Sleep::sleep(std::function<void()> preWake){
+void Sleep::sleep(std::function<void()> preWake, bool keepDisplay, std::function<void()> onMinute){
 	ESP_LOGI(TAG, "Goint to sleep\n");
 
 	auto input = (Input*) Services.get(Service::Input);
-	auto time = (Input*) Services.get(Service::Time);
+	auto time = (Time*) Services.get(Service::Time);
 	auto battery = (Battery*) Services.get(Service::Battery);
 	auto bl = (BacklightBrightness*) Services.get(Service::Backlight);
 
@@ -33,7 +33,11 @@ void Sleep::sleep(std::function<void()> preWake){
 
 	Events::post(Facility::Sleep, Event { .action = Event::SleepOn });
 
-	bl->fadeOut();
+	if(keepDisplay){
+		bl->setLowPower();
+	}else{
+		bl->fadeOut();
+	}
 	ConMan.goLowPow();
 
 	gpio_sleep_set_pull_mode((gpio_num_t)Pins::get(Pin::TftDc), GPIO_PULLUP_ONLY);
@@ -48,10 +52,16 @@ void Sleep::sleep(std::function<void()> preWake){
 	gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::TftSck));
 	gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::TftMosi));
 	gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::BattVref));
-	gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::LedBl));
+	if(!keepDisplay){
+		gpio_sleep_sel_en((gpio_num_t)Pins::get(Pin::LedBl));
+	}
 
 	int64_t sleepStartTime = esp_timer_get_time();
-	sleepStart();
+	while(true){
+		const TickType_t wait = onMinute ? pdMS_TO_TICKS(60000) : portMAX_DELAY;
+		if(sleepStart(wait)) break;
+		onMinute();
+	}
 	auto sleepTime = esp_timer_get_time() - sleepStartTime;
 
 	ConMan.goHiPow();
@@ -65,12 +75,16 @@ void Sleep::sleep(std::function<void()> preWake){
 		preWake();
 	}
 
-	bl->fadeIn();
+	if(keepDisplay){
+		bl->restoreBrightness();
+	}else{
+		bl->fadeIn();
+	}
 
 	ESP_LOGI(TAG, "Slept for %lld us\n", sleepTime);
 }
 
-void IRAM_ATTR Sleep::sleepStart(){
+bool IRAM_ATTR Sleep::sleepStart(TickType_t wait){
 	gpio_config_t io_conf = {
 			.pin_bit_mask = 1ULL << Pins::get(Pin::BtnAlt),
 			.mode = GPIO_MODE_INPUT,
@@ -82,11 +96,12 @@ void IRAM_ATTR Sleep::sleepStart(){
 	gpio_isr_handler_add(WakePin, intr, &wakeSem);
 
 	confPM(true);
-	xSemaphoreTake(wakeSem, portMAX_DELAY);
+	const bool woke = xSemaphoreTake(wakeSem, wait) == pdTRUE;
 	gpio_isr_handler_remove(WakePin);
 	confPM(false);
 
 	gpio_set_intr_type(WakePin, GPIO_INTR_DISABLE);
+	return woke;
 }
 
 void IRAM_ATTR Sleep::intr(void* arg){

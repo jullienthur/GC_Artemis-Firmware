@@ -5,6 +5,7 @@
 #include <esp_gatts_api.h>
 #include <algorithm>
 #include <cstring>
+#include "Util/BLEDiagnostics.h"
 
 static const char* TAG = "BLE::Server";
 
@@ -237,6 +238,7 @@ void BLE::Server::onMtuResp(const esp_ble_gatts_cb_param_t::gatts_mtu_evt_param*
 }
 
 void BLE::Server::onConnect(const esp_ble_gatts_cb_param_t::gatts_connect_evt_param* param){
+	BLEDiagnostics::record(BLEDiagnostics::Event::ServerConnected);
 	memcpy(con.addr, param->remote_bda, 6);
 	con.hndl = param->conn_id;
 
@@ -260,6 +262,7 @@ void BLE::Server::onConnect(const esp_ble_gatts_cb_param_t::gatts_connect_evt_pa
 
 void BLE::Server::onDisconnect(const esp_ble_gatts_cb_param_t::gatts_disconnect_evt_param* param){
 	ESP_LOGI(TAG, "Disconnected. Reason: 0x%x", param->reason);
+	BLEDiagnostics::record(BLEDiagnostics::Event::ServerDisconnected, param->reason);
 
 	// Snapshot the address before clearing so subscribers see the disconnecting peer.
 	esp_bd_addr_t peer;

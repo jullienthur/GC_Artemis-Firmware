@@ -5,6 +5,7 @@
 #include <cstring>
 #include <esp_log.h>
 #include <esp_gatt_common_api.h>
+#include "Util/BLEDiagnostics.h"
 
 static const char* TAG = "BLE";
 
@@ -101,6 +102,7 @@ void BLE::GAP::ble_GAP_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t* 
 		case ESP_GAP_BLE_AUTH_CMPL_EVT:{
 			if(!param->ble_security.auth_cmpl.success){
 				ESP_LOGI(TAG, "fail reason = 0x%x", param->ble_security.auth_cmpl.fail_reason);
+				BLEDiagnostics::record(BLEDiagnostics::Event::AuthFailed, param->ble_security.auth_cmpl.fail_reason);
 				break;
 			}
 			uint64_t addr = 0;

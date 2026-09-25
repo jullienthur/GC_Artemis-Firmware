@@ -35,6 +35,7 @@ private:
 	class PickerElement* themePicker = nullptr;
 	PickerElement* dateFormatPicker = nullptr;
 	class LabelElement* manualTime = nullptr;
+	LabelElement* bluetoothDiagnostics = nullptr;
 	class BoolElement* audioSwitch = nullptr;
 	class SliderElement* brightnessSlider = nullptr;
 	BoolElement* ledSwitch = nullptr;

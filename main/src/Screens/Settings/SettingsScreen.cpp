@@ -14,6 +14,7 @@
 #include "Filepaths.hpp"
 #include "LV_Interface/InputLVGL.h"
 #include "LV_Interface/FSLVGL.h"
+#include "Screens/BluetoothDiagnosticsScreen.h"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), imu(*(IMU*) Services.get(Service::IMU)),
@@ -146,6 +147,10 @@ void SettingsScreen::updateVisuals(){
 		manualTime->updateVisuals();
 	}
 
+	if(bluetoothDiagnostics != nullptr){
+		bluetoothDiagnostics->updateVisuals();
+	}
+
 	if(audioSwitch != nullptr){
 		audioSwitch->updateVisuals();
 	}
@@ -247,6 +252,11 @@ void SettingsScreen::buildUI(){
 		});
 	}, false, LV_ALIGN_LEFT_MID);
 	lv_group_add_obj(inputGroup, *manualTime);
+
+	bluetoothDiagnostics = new LabelElement(container, "Bluetooth diagnostics", [this](){
+		transition([](){ return std::make_unique<BluetoothDiagnosticsScreen>(); });
+	}, false, LV_ALIGN_LEFT_MID);
+	lv_group_add_obj(inputGroup, *bluetoothDiagnostics);
 
 	audioSwitch = new BoolElement(container, "Sound", [](bool value){
 		if(value){

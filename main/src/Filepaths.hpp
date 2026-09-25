@@ -21,12 +21,7 @@ namespace File {
 	}
 
 	namespace Intro {
-		[[maybe_unused]] constexpr const char* Artemis = "S:/intro/artemis.bin";
-		[[maybe_unused]] constexpr const char* BlackBackground = "S:/intro/blackBg.bin";
-		[[maybe_unused]] constexpr const char* CircuitMess = "S:/intro/cm.bin";
-		[[maybe_unused]] constexpr const char* GeekClub = "S:/intro/geek.bin";
-		[[maybe_unused]] constexpr const char* OrangeBackground = "S:/intro/orangeBg.bin";
-		[[maybe_unused]] constexpr const char* Space = "S:/intro/space.bin";
+		[[maybe_unused]] constexpr const char* Pothos = "S:/intro/pothos.bin";
 	}
 
 	namespace LockScreen {
@@ -558,8 +553,8 @@ namespace File {
 			[[maybe_unused]] constexpr const char* CatOther = "S:/theme4/small/cat_other.bin";
 			[[maybe_unused]] constexpr const char* CatSched = "S:/theme4/small/cat_sched.bin";
 			[[maybe_unused]] constexpr const char* CatSoc = "S:/theme4/small/cat_soc.bin";
-			[[maybe_unused]] constexpr const char* LockClosed = "S:/theme4/small/unlock.bin";
-			[[maybe_unused]] constexpr const char* LockOpen = "S:/theme4/small/unlock.bin";
+			[[maybe_unused]] constexpr const char* LockClosed = "S:/theme4/small/lock_closed.bin";
+			[[maybe_unused]] constexpr const char* LockOpen = "S:/theme4/small/lock_open.bin";
 			[[maybe_unused]] constexpr const char* Trash = "";
 			[[maybe_unused]] constexpr const char* TrashSel = "";
 		}

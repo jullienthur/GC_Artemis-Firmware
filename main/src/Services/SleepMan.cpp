@@ -49,7 +49,6 @@ void SleepMan::goSleep(){
 	if(!battery || battery->isShutdown()) return;
 
 	MainMenu::resetMenuIndex();
-
 	lvgl.stopScreen();
 
 	if(settings.get().motionDetection){

@@ -13,7 +13,7 @@ class Sleep {
 public:
 	Sleep();
 
-	void sleep(std::function<void()> preWake = {});
+	void sleep(std::function<void()> preWake = {}, bool keepDisplay = false, std::function<void()> onMinute = {});
 
 	struct Event {
 		enum { SleepOn, SleepOff } action;
@@ -26,7 +26,7 @@ friend SleepMan;
 	SemaphoreHandle_t wakeSem;
 	static void intr(void* arg);
 
-	void sleepStart();
+	bool sleepStart(TickType_t wait);
 
 	void confPM(bool sleep, bool firstTime = false);
 

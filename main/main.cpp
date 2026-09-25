@@ -3,6 +3,7 @@
 #include <nvs_flash.h>
 #include <bootloader_random.h>
 #include <esp_random.h>
+#include <esp_system.h>
 #include <Devices/BatteryV2.h>
 #include <Devices/BatteryV3.h>
 
@@ -24,6 +25,7 @@
 #include "LV_Interface/InputLVGL.h"
 #include <lvgl/lvgl.h>
 #include "Util/EfuseMeta.h"
+#include "Util/BLEDiagnostics.h"
 #include "Theme/theme.h"
 #include "Util/Services.h"
 #include "Services/BacklightBrightness.h"
@@ -31,6 +33,8 @@
 #include "Services/Time.h"
 #include "Services/StatusCenter.h"
 #include "Services/SleepMan.h"
+#include "Services/AutoWiFi.h"
+#include "Services/PomodoroTimer.h"
 #include "Screens/ShutdownScreen.h"
 #include "Screens/Lock/LockScreen.h"
 #include "JigHWTest/JigHWTest.h"
@@ -91,6 +95,10 @@ void init(){
 		ret = nvs_flash_init();
 	}
 	ESP_ERROR_CHECK(ret);
+	BLEDiagnostics::begin();
+	BLEDiagnostics::record(BLEDiagnostics::Event::Reset, static_cast<uint16_t>(esp_reset_reason()));
+	BLEDiagnostics::record(BLEDiagnostics::Event::Boot);
+	BLEDiagnostics::dump();
 
 	auto settings = new Settings();
 	Services.set(Service::Settings, settings);
@@ -166,6 +174,14 @@ void init(){
 	auto rtc = new RTC(*i2c);
 	auto time = new Time(*rtc);
 	Services.set(Service::Time, time); // Time service is required as soon as Phone is up
+
+	// Keep the phone hotspot connection available without any watch input.
+	// The credentials live in the ignored Config/HotspotCredentials.h file.
+	auto wifi = new AutoWiFi();
+	Services.set(Service::WiFi, wifi);
+
+	auto pomodoro = new PomodoroTimer(*audio);
+	Services.set(Service::Pomodoro, pomodoro);
 
 	auto bt = new Bluetooth();
 	auto gap = new BLE::GAP();

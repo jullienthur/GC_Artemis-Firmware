@@ -24,6 +24,9 @@ endif()
 file(GLOB_RECURSE LIBS "lib/*/src/**.cpp" "lib/*/src/**.c")
 set(LIBS_INCL "lib/mjson/src" "lib/glm/glm")
 
-idf_component_register(SRCS ${ENTRY} ${SOURCES} ${LIBS} INCLUDE_DIRS "src" ${LIBS_INCL})
+idf_component_register(SRCS ${ENTRY} ${SOURCES} ${LIBS} INCLUDE_DIRS "src" ${LIBS_INCL}
+        REQUIRES bootloader_support bt driver efuse esp_adc esp_common esp_event
+        esp_hw_support esp_netif esp_pm esp_psram esp_system esp_timer esp_wifi heap log
+        JPEGDEC LovyanGFX Perse-Common lvgl nvs_flash pthread spiffs)
 
 spiffs_create_partition_image(storage ../spiffs_image FLASH_IN_PROJECT)

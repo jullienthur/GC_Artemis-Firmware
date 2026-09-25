@@ -6,4 +6,7 @@ build
 sdkconfig*
 !sdkconfig
 
+# Local Wi-Fi credentials. Keep this device-specific file out of Git.
+main/src/Config/HotspotCredentials.h
+
 spiffs.bin

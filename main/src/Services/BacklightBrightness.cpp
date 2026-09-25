@@ -14,6 +14,15 @@ void BacklightBrightness::setBrightness(uint8_t level){
 	pwm.setDuty(mapDuty(level));
 }
 
+void BacklightBrightness::setLowPower(){
+	pwm.setDuty(MinDuty);
+}
+
+void BacklightBrightness::restoreBrightness(){
+	Settings& settings = *(Settings*) Services.get(Service::Settings);
+	setBrightness(settings.get().screenBrightness);
+}
+
 constexpr uint8_t BacklightBrightness::mapDuty(uint8_t level){
 	level = std::clamp(level, (uint8_t) 0, (uint8_t) 100);
 

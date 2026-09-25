@@ -3,6 +3,7 @@
 #include <cstring>
 #include <esp_log.h>
 #include <esp_gap_ble_api.h>
+#include "Util/BLEDiagnostics.h"
 
 static const char* TAG = "BLE::Client";
 
@@ -129,6 +130,7 @@ void BLE::Client::onPairDone(){
 void BLE::Client::onOpen(const esp_ble_gattc_cb_param_t::gattc_open_evt_param* param){
 	if(param->status != ESP_GATT_OK){
 		ESP_LOGE(TAG, "open failed, error status = 0x%x", param->status);
+		BLEDiagnostics::record(BLEDiagnostics::Event::ClientOpenFailed, param->status);
 		return;
 	}
 
@@ -138,7 +140,10 @@ void BLE::Client::onOpen(const esp_ble_gattc_cb_param_t::gattc_open_evt_param* p
 	// Now that the GATT client connection (clcb) exists, start pairing. When it
 	// completes, ESP_GAP_BLE_AUTH_CMPL_EVT fires (handled by BLE) and BLE calls
 	// onPairDone(). Discovery proceeds once the link is also encrypted.
-	esp_ble_set_encryption(con.addr, ESP_BLE_SEC_ENCRYPT_MITM);
+	// The configured bond uses Secure Connections without MITM: this watch has
+	// no input/output capability for a passkey or numeric comparison. Requesting
+	// MITM here rejects an otherwise valid bonded iPhone on reconnect.
+	esp_ble_set_encryption(con.addr, ESP_BLE_SEC_ENCRYPT);
 
 	maybeStartDiscovery();
 }
@@ -208,6 +213,7 @@ void BLE::Client::onClose(const esp_ble_gattc_cb_param_t::gattc_close_evt_param*
 
 void BLE::Client::onDisconnect(const esp_ble_gattc_cb_param_t::gattc_disconnect_evt_param* param){
 	ESP_LOGI(TAG, "Disconnected. Reason: 0x%x", param->reason);
+	BLEDiagnostics::record(BLEDiagnostics::Event::ClientDisconnected, param->reason);
 	close();
 }
 
